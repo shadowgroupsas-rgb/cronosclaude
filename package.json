@@ -1,0 +1,26 @@
+{
+  "name": "cronos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CRONOS - Sistema de registro y gestión de horas extras con rastreo GPS",
+  "author": "Copower Energy Solutions",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@10.29.3",
+  "scripts": {
+    "dev:api": "pnpm --filter @cronos/api dev",
+    "dev:web": "pnpm --filter @cronos/web dev",
+    "build:api": "pnpm --filter @cronos/api build",
+    "build:web": "pnpm --filter @cronos/web build",
+    "start:api": "pnpm --filter @cronos/api start:prod",
+    "start:web": "pnpm --filter @cronos/web start",
+    "test:api": "pnpm --filter @cronos/api test",
+    "lint": "pnpm -r lint",
+    "migration:generate": "pnpm --filter @cronos/api migration:generate",
+    "migration:run": "pnpm --filter @cronos/api migration:run",
+    "seed": "pnpm --filter @cronos/api seed"
+  }
+}
