@@ -1,0 +1,87 @@
+# ══════════════════════════════════════════════════════════════
+#  La Chingada Restaurant — Configuración Apache
+#  Seguridad + URLs limpias + Headers de protección
+# ══════════════════════════════════════════════════════════════
+
+Options -Indexes
+Options -MultiViews
+
+# ── Headers de seguridad ───────────────────────────────────────
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    # HSTS (solo si tienes HTTPS configurado)
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# ── Reescritura de URLs ────────────────────────────────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Redirigir www a non-www (ajusta según tu dominio)
+    # RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+    # RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+    # Modo mantenimiento — redirige todo excepto admin y maintenance
+    RewriteCond %{DOCUMENT_ROOT}/maintenance.flag -f
+    RewriteCond %{REQUEST_URI} !^/maintenance\.php
+    RewriteCond %{REQUEST_URI} !^/admin
+    RewriteCond %{REQUEST_URI} !^/assets
+    RewriteRule ^ /maintenance.php [L]
+
+    # Sitemap dinámico
+    RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
+
+    # URLs limpias — quitar .php
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME}\.php -f
+    RewriteRule ^([^/]+)$ $1.php [L,QSA]
+
+    # Página de inicio
+    RewriteRule ^inicio/?$ index.php [L,QSA]
+    RewriteRule ^menu/?$ menu.php [L,QSA]
+    RewriteRule ^reservas/?$ reservas.php [L,QSA]
+    RewriteRule ^contacto/?$ contacto.php [L,QSA]
+</IfModule>
+
+# ── Proteger archivos sensibles ────────────────────────────────
+<FilesMatch "^(config\.php|\.env|composer\.lock|package\.lock\.json)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# ── Bloquear acceso a directorios ocultos ─────────────────────
+<IfModule mod_rewrite.c>
+    RewriteRule ^\.git/ - [F,L]
+    RewriteRule ^\.svn/ - [F,L]
+</IfModule>
+
+# ── Compresión GZIP ────────────────────────────────────────────
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/javascript
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ── Cache de assets estáticos ─────────────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png  "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/gif  "access plus 1 month"
+    ExpiresByType text/css   "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType image/x-icon "access plus 1 year"
+</IfModule>
+
+# ── Charset ────────────────────────────────────────────────────
+AddDefaultCharset UTF-8
+
+# ── Deshabilitar firma del servidor ───────────────────────────
+ServerSignature Off
