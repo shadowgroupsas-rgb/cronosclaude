@@ -1,0 +1,23 @@
+# ══════════════════════════════════════════════════════════════
+#  Seguridad del directorio /uploads/
+#  Evita que se ejecute PHP en archivos subidos
+# ══════════════════════════════════════════════════════════════
+
+# Deshabilitar ejecución de PHP
+<FilesMatch "\.php[0-9]?$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Deshabilitar ejecución de scripts
+Options -ExecCGI
+AddHandler cgi-script .php .php3 .php4 .php5 .phtml .pl .py .jsp .asp .sh .cgi
+
+# Deshabilitar listado de directorio
+Options -Indexes
+
+# Solo permitir tipos de imagen y documentos
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|pdf|ico)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
